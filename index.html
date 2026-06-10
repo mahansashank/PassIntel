@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PassIntel – Password Security Suite</title>
+  
+  <!-- Tabler Icons Library -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  
+  <!-- Externalized Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header Section -->
+    <header class="header">
+      <div class="logo-badge">
+        <div class="logo-dot"></div>
+        <span>PassIntel Suite v1.1</span>
+      </div>
+      <h1>Password Security<br><em>Analyzer & Generator</em></h1>
+      <p class="subtitle">Evaluate password strengths, test for dictionary leaks, and generate cryptographically secure passwords.</p>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+      
+      <!-- Left Column: Password Analyzer & Metrics -->
+      <div class="dashboard-column">
+        
+        <!-- Password Input Card -->
+        <section class="card">
+          <div class="card-title">Password Strength Analyzer</div>
+          
+          <div class="input-row">
+            <input 
+              class="pass-input" 
+              type="password" 
+              id="passInput" 
+              placeholder="Enter a password to analyze..." 
+              autocomplete="off" 
+              oninput="analyze()"
+            >
+            <button class="icon-btn" id="eyeBtn" onclick="toggleVis()" title="Show/Hide Password">
+              <i class="ti ti-eye"></i>
+            </button>
+          </div>
+
+          <!-- Alert for Common Passwords -->
+          <div class="alert" id="commonAlert">
+            <i class="ti ti-alert-triangle"></i>
+            <span id="alertMsg"></span>
+          </div>
+
+          <!-- Quick Metrics Grid -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-lbl">Score</div>
+              <div class="metric-value" id="metScore">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-lbl">Entropy</div>
+              <div class="metric-value" id="metEntropy">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-lbl">Length</div>
+              <div class="metric-value" id="metLen">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-lbl">Charset</div>
+              <div class="metric-value" id="metCharset">—</div>
+            </div>
+          </div>
+
+          <!-- Visual Strength Progress Bar -->
+          <div class="strength-section">
+            <div class="strength-header">
+              <span class="strength-lbl">Overall Strength</span>
+              <span class="strength-status" id="barStatus">—</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barFill"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Technical Analysis Details Panel -->
+        <section class="card">
+          <div class="card-title">Analysis Details</div>
+          
+          <div class="info-row">
+            <span class="info-key">Common dictionary password</span>
+            <span class="info-value" id="d-common">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Character pool size</span>
+            <span class="info-value" id="d-pool">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Has repeating chars (3+)</span>
+            <span class="info-value" id="d-repeat">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Has sequential runs (abc, 123)</span>
+            <span class="info-value" id="d-seq">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Possible combinations</span>
+            <span class="info-value" id="d-combo">—</span>
+          </div>
+        </section>
+
+        <!-- Actionable Improvement Tips -->
+        <section class="card">
+          <div class="card-title">Improvement Tips</div>
+          <div id="tipsList" class="tips-container">
+            <p class="empty-tips-msg">Enter a password above to view personalized tips.</p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Password Generator, Requirements, & Entropy Visualizer -->
+      <div class="dashboard-column">
+        
+        <!-- Secure Password Generator Component -->
+        <section class="card">
+          <div class="card-title">Secure Password Generator (CSPRNG)</div>
+          
+          <div class="generator-controls">
+            <!-- Password Display input -->
+            <div class="input-row">
+              <input 
+                class="pass-input" 
+                type="text" 
+                id="genDisplay" 
+                value="Click Generate..." 
+                readonly 
+                style="text-align: center; border-style: dashed;"
+              >
+            </div>
+
+            <!-- Generator Action Buttons -->
+            <div class="gen-actions">
+              <button class="btn-primary" onclick="generatePassword()" style="flex: 1.5;">
+                <i class="ti ti-refresh"></i> Generate
+              </button>
+              <button class="btn-secondary" id="copyBtn" onclick="copyToClipboard()" title="Copy to Clipboard">
+                <i class="ti ti-copy"></i> Copy
+              </button>
+              <button class="btn-secondary" onclick="sendToAnalyzer()" title="Send password to analyzer">
+                <i class="ti ti-analyze"></i> Use in Analyzer
+              </button>
+            </div>
+
+            <!-- Length Control Slider -->
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Password Length</span>
+                <span class="slider-val"><span id="sliderValLabel">16</span> chars</span>
+              </div>
+              <input type="range" id="genLengthRange" min="8" max="64" value="16">
+            </div>
+
+            <!-- Character Checkboxes -->
+            <div class="checkbox-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" id="genUpper" checked> Uppercase (A–Z)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="genLower" checked> Lowercase (a–z)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="genNumbers" checked> Numbers (0–9)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="genSymbols" checked> Symbols (!@#...)
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Requirements checklist card -->
+        <section class="card">
+          <div class="card-title">Strength Requirements</div>
+          
+          <div class="checklist">
+            <div class="check-item" id="ck-len">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>At least 8 characters long</span>
+            </div>
+            <div class="check-item" id="ck-12">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>At least 12 characters long</span>
+            </div>
+            <div class="check-item" id="ck-upper">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>Contains uppercase letters (A–Z)</span>
+            </div>
+            <div class="check-item" id="ck-lower">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>Contains lowercase letters (a–z)</span>
+            </div>
+            <div class="check-item" id="ck-num">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>Contains numerical digits (0–9)</span>
+            </div>
+            <div class="check-item" id="ck-sym">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>Contains special symbols (!@#...)</span>
+            </div>
+            <div class="check-item" id="ck-norep">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>No identical repeating characters (3+ runs)</span>
+            </div>
+            <div class="check-item" id="ck-noseq">
+              <span class="check-icon"><i class="ti ti-circle"></i></span>
+              <span>No predictable sequence patterns (runs)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Shannon Entropy Card -->
+        <section class="card">
+          <div class="card-title">Entropy Assessment</div>
+          
+          <div class="entropy-visualizer">
+            <p class="entropy-description">
+              Entropy measures a password's randomness in bits. High entropy values prevent dictionary guessing runs.
+            </p>
+            
+            <div class="entropy-bars">
+              <div class="ebar" id="eb1"></div>
+              <div class="ebar" id="eb2"></div>
+              <div class="ebar" id="eb3"></div>
+              <div class="ebar" id="eb4"></div>
+              <div class="ebar" id="eb5"></div>
+              <div class="ebar" id="eb6"></div>
+              <div class="ebar" id="eb7"></div>
+              <div class="ebar" id="eb8"></div>
+              <div class="ebar" id="eb9"></div>
+              <div class="ebar" id="eb10"></div>
+            </div>
+            
+            <div class="crack-time-box" id="crackTime">
+              Enter a password to see crack time estimate.
+            </div>
+
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background-color: var(--color-red)"></div>
+                <span>&lt;40 bits (Weak)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background-color: var(--color-amber)"></div>
+                <span>40–60 bits (Fair)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background-color: var(--color-green)"></div>
+                <span>60+ bits (Strong)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Toast Popup Notification -->
+    <div class="toast" id="toastNotification">
+      <i class="ti ti-circle-check-filled" style="color: var(--color-green); font-size: 1.1rem;"></i>
+      <span id="toastMsg">Notification message</span>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+      <div>Local browser analysis sandbox. All calculations are executed securely on client-side client resources.</div>
+      <div class="author-credit">Developed by P. Mahan Sashank Yadav</div>
+      <div>
+        Cybersecurity Intern | <span class="cu-tag">Chandigarh University</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Externalized Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
