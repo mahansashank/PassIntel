@@ -74,7 +74,7 @@ $$T = \frac{R^L}{2 \times 10^{10}} \text{ seconds}$$
     *   Refactored code structure into independent modules (`index.html`, `style.css`, `app.js`).
     *   Rebranded project from PassGuard to **PassIntel**.
     *   Added the **Secure Password Generator** leveraging Web Cryptography CSPRNG APIs.
-    *   Cleaned and alphabetized dictionary checklist, removing AI duplicate list items.
+    *   Cleaned and alphabetized dictionary checklist.
     *   Built copy-to-clipboard functionality and clipboard sharing with the analyzer.
     *   Implemented user feedback toasts and polished the design to a responsive dual-column dashboard.
 
