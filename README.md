@@ -10,6 +10,8 @@ An interactive, client-side cybersecurity tool designed to analyze password stre
 
 ## 🚀 Live Demo & Visuals
 
+![PassIntel Suite Dashboard](screenshot.png)
+
 The application is built as a responsive cybersecurity dashboard. It divides the workspace into a dual-column layout:
 1. **Password Strength Analyzer**: Analyzes length, character pools, common dictionary leaks, repeats, keyboard sequences, and outputs an overall strength score (0–100) and Shannon Entropy value.
 2. **Secure Password Generator**: Generates high-entropy passwords using the web browser's cryptographically secure pseudo-random number generator (CSPRNG) API with customizable length and character sets.
